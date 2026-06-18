@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{kotex}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage{setspace}
+
+\usepackage{amssymb,amsmath,mathtools} % Before unicode-math
+\usepackage[
+  math-style=ISO,
+  warnings-off={mathtools-colon, mathtools-overbracket},
+]{unicode-math}
+
+% Font steup
+\usepackage[tt=false]{libertine}
+\setmathfont{LibertinusMath-Regular.otf}[Scale=MatchUppercase]
+\setmonofont{inconsolata}[Scale=MatchLowercase, StylisticSet=3]
+\setmainhangulfont{Noto Serif KR}[
+  Scale=MatchUppercase,
+  AutoFakeSlant=0.15
+]
+\setsanshangulfont{KoPubWorldDotum_Pro}[
+  Scale=MatchUppercase,
+  BoldFont={* Bold}
+]
+
+% Temporary; for placeholder
+\usepackage{jiwonlipsum}
+
+% Load ACL style
+\usepackage[preprint]{acl}
+\renewcommand{\abstractname}{초록}
+\onehalfspacing
+
+% Metadata
+\title{여기에 제목을 입력}
+\author{박준영 \\
+  인문대학 언어학과 \\
+  서울대학교 \\
+\texttt{bloomwayz@snu.ac.kr} \\}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+  \jiwon[1]
+\end{abstract}
+
+\section{서론}
+
+\citet{Gusfield:97}은 대형 언어 모델을 아래와 같이 정의한다.
+
+\jiwon[2-4]
+
+% Entries for the entire Anthology, followed by custom entries
+\bibliography{custom}
+
+\appendix
+
+\section{아마도 부록}
+\label{sec:appendix}
+
+\end{document}
