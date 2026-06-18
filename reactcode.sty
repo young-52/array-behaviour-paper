@@ -1,0 +1,67 @@
+%%
+%% This is file `reactcode.sty'.
+%% Style for react code
+%%
+\RequirePackage{expl3}
+\ProvidesExplPackage
+{reactcode}
+{2026/06/18}
+{0.1}
+{Style for react code}
+
+\RequirePackage[dvipsnames]{xcolor}
+
+\RequirePackage{listings}
+\lstset{
+  label=Console,
+  numbers=left,
+  numbersep=8pt,
+  xleftmargin=0.5em
+}
+
+\lstdefinelanguage{React}{
+  % JS
+  morekeywords=[1]{function, const, return, typeof, constructor, await},
+  % React-tRace
+  morekeywords=[1]{let, in, fun, if, then, else, print, mod},
+  keywordstyle=[1]\color{ForestGreen},
+  morekeywords=[2]{useState, useEffect, useRef, useLayoutEffect, useMemo, useContext, useInsertionEffect, button},
+  keywordstyle=[2]\color{Plum},
+  morecomment=[l]{\#},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]`,
+  morestring=[b]',
+  morestring=[b]",
+  alsoletter={_},
+  identifierstyle=\color{RoyalBlue},
+  commentstyle=\color{Gray}\ttfamily\itshape,
+  stringstyle=\color{RedViolet}\ttfamily,
+  sensitive=true,
+}
+
+\lstdefinestyle{snippetReact}{
+  language=React,
+  basicstyle=\linespread{1.2}\footnotesize\ttfamily,
+  xleftmargin=0.5em,
+  breaklines=false,
+  tabsize=2,
+  showtabs=false,
+  columns=flexible,
+  extendedchars=true,
+  aboveskip=0.5\baselineskip,
+  belowskip=0.5\baselineskip,
+}
+
+\lstnewenvironment{reactcode}[1][]
+{
+  \lstset{style=snippetReact,#1}
+}{}
+
+\newcommand*{\presentfont}[1]{{\fontspec{#1}#1}}
+\bool_if:nF { \sys_if_engine_xetex_p: || \sys_if_engine_luatex_p: }
+{ \newcommand*{\fontspec}[1]{} }
+\newcommand*{\Alt}[2]{#1\,{\color{gray}\smaller\textit{#2}}\hspace{.06667em}}
+%%
+%%
+%% End of file `reactcode.sty'.
