@@ -1,0 +1,52 @@
+%%
+%% This is file `alt.sty'.
+%% Macros for bilingual term annotation
+%%
+\RequirePackage{expl3}
+\ProvidesExplPackage
+{alt}
+{2026/06/18}
+{0.1}
+{Macros for ilingual term annotation}
+
+\RequirePackage{relsize}
+\RequirePackage{makeidx}
+%\renewcommand*{\indexname}{찾아보기}
+%\makeindex
+
+% Korean-English, e.g., \alt{메모리 재활용}{garbage collection}
+% \alt*을 통해 찾아보기에 추가, \alt는 단순히 한영 병기
+% <>안에는 참조할 다른 개념 제시
+
+\NewDocumentCommand { \myindex } { s m m }
+{
+  \IfBooleanTF {#1}
+  { \index{#2!#3|textbf}\index{#3!#2|textbf} }
+  { \index{#2!#3}\index{#3!#2} }
+}
+
+\NewDocumentCommand { \alt } { s m O{#2} d<> m O{#5} d<> }
+{
+  #2\,{\color{gray!50!darkgray}\smaller\textit{#5}}\hspace{.06667em}
+  \IfBooleanT {#1}
+  {
+    \myindex{#3}{#6}
+
+    \IfNoValueTF {#4}
+    {
+      \IfNoValueF {#7}
+      { % See English
+        \index{#6|see{#7}}
+      }
+    }
+    {
+      \IfNoValueTF {#7}
+      { % See Korean
+        \index{#3|see{#4}}
+      }
+      { % See both
+        \index{#3|see{#4}}\index{#6|see{#7}}
+      }
+    }
+  }
+}
