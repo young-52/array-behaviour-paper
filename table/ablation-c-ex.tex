@@ -1,0 +1,63 @@
+\begin{table*}[p]
+  \centering
+  \begin{supertabular}{ll}
+    \toprule
+    \textbf{조건} & \textbf{코드 예시} \\
+    \midrule
+    \texttt{both} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  useEffect(() => {
+    use(page, ref);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{target\_only} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  useEffect(() => {
+    use(page);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{control\_only} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  useEffect(() => {
+    use(ref);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{neither} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  useEffect(() => {
+    use();
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\
+    \bottomrule
+  \end{supertabular}
+  \caption{변수 사용 조작 조건별 코드 예시. \texttt{pair\_01}의 변수 이름 쌍을 적용한 결과임.}
+  \label{tab:ablation-c-ex}
+\end{table*}

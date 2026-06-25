@@ -1,0 +1,64 @@
+\begin{table*}[p]
+  \centering
+  \begin{supertabular}{ll}
+    \toprule
+    \textbf{조건} & \textbf{코드 예시} \\
+    \midrule
+    \texttt{useEffect} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  useEffect(() => {
+    use(page, ref);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{subscribe} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function subscribe(callback, values) {
+  callback();
+}
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  subscribe(() => {
+    use(page, ref);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{plain\_array} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  use(page, ref);
+  const values = [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{return\_array} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  use(page, ref);
+  return [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\
+    \bottomrule
+  \end{supertabular}
+  \caption{문맥 조작 조건별 코드 예시. \texttt{pair\_01}의 변수 이름 쌍을 적용한 결과임.}
+  \label{tab:ablation-b-ex}
+\end{table*}

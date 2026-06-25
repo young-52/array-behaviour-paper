@@ -1,0 +1,84 @@
+\begin{table*}[p]
+  \centering
+  \begin{supertabular}{ll}
+    \toprule
+    \textbf{조건} & \textbf{코드 예시} \\
+    \midrule
+    \texttt{useEffect} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  useEffect(() => {
+    fetch(`/api?x=${page}&y=${ref}`);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{useLayoutEffect} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  useLayoutEffect(() => {
+    fetch(`/api?x=${page}&y=${ref}`);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{alias} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+const myEffect = useEffect;
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  myEffect(() => {
+    fetch(`/api?x=${page}&y=${ref}`);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{alias\_ctrl} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function subscribe(callback, values) {
+  callback();
+}
+const myEffect = subscribe;
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  myEffect(() => {
+    fetch(`/api?x=${page}&y=${ref}`);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\ \midrule
+    \texttt{subscribe} &
+    \begin{minipage}[c]{0.75\textwidth}
+% tex-fmt: off
+\begin{reactcode}[numbers=none]
+function subscribe(callback, values) {
+  callback();
+}
+function Component() {
+  const [page, setPage] = useState(1);
+  const ref = 1;
+  subscribe(() => {
+    fetch(`/api?x=${page}&y=${ref}`);
+  }, [
+\end{reactcode}
+% tex-fmt: on
+    \end{minipage} \\
+    \bottomrule
+  \end{supertabular}
+  \caption{함수 이름 조작 조건별 코드 예시. \texttt{pair\_01}의 변수 이름 쌍을 적용한 결과임.}
+  \label{tab:template-ex}
+\end{table*}
