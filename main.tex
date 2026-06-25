@@ -319,11 +319,12 @@ Claude Sonnet 4.6\citep{claude}을 사용하여 50쌍의 변수 쌍을 생성하
 % tex-fmt: off
 모든 프롬프트는 코드 앞부분만으로 구성되며, 의존성 배열을 여는 \texttt{[}에서 끝난다.
 인과적 언어 모델은 입력의 각 위치에서 다음 토큰의 로짓을 산출하므로, 배열의 첫 항목, 즉 \texttt{[} 바로 다음 토큰에 대한 로짓은 이 \texttt{[} 위치에서 읽어낸다.
+% tex-fmt: on
 
 우리가 집중하는 것은 두 후보 변수 $x$, $y$이다.
 모델이 $x$ 토큰과 $y$ 토큰에 부여한 로짓을 각각 $\textsf{logit}(x)$, $\textsf{logit}(y)$라고 할 때, 두 후보의 로짓 차이 $D$는 다음과 같이 계산할 수 있다.
 \[
-  D = \textsf{logit}(x) - \textsf{logit}(y)
+D = \textsf{logit}(x) - \textsf{logit}(y)
 \]
 이때 역할 교체의 여부에 따라 $x$가 상태 변수이고 $y$가 상수일 수도 있고, 반대로 $x$가 상수이고 $y$가 상태 변수일 수도 있다.
 이 연구에서는 선언 형태에 따라 로짓 차이 $D$의 부호를 정렬한 $LD_\texttt{state}$를 주요 지표로 사용한다.
@@ -334,7 +335,193 @@ LD_{\texttt{state}} =
   -D & x\text{가 상수일 때}
 \end{cases}
 \]
-$LD_{\texttt{state}}$가 양수면 상태 선호를, 음수는 상수 선호를 의미하게 된다.
+$LD_{\texttt{state}}$가 양수면 상태 선호를, 음수는 상수 선호를 뜻한다.
+
+모든 통계는 변수 쌍을 단위로 집계한 값에서 보고한다.
+모델별·조건별 평균 $LD_{\texttt{state}}$, 양의 값을 보인 변수 쌍의 비율($r_{>0}$)과 \alt{코헨}{Cohen}의 $d$를 보고한다.
+$p$값은 각 검정이 가정한 방향을 그대로 따르되, 단측 검정의 방향과 반대로 큰 효과가 나타난 경우에는 $p$값을 효과 부재의 근거로 해석하지 않는다.
+
+\section{결과}
+\label{sec:results}
+\subsection{선호 관찰}
+\label{sec:results-pref}
+
+선호 관찰 실험에서는 함수--배열 구조에서 모델이 배열의 첫 항목으로 상태 변수를 상수보다 선호하는지 살펴본다.
+실험 조건은 \texttt{useEffect}, \texttt{useLayoutEffect}, \texttt{alias}, \texttt{alias\_ctrl}, \texttt{subscribe}로 구성되며, 총 1,800개의 코드 조각을 데이터로 사용한다.
+여기서 확인하고자 하는 것은 모델이 상태 변수를 선호하는 경향이 리액트 훅 문맥에 특화되어 있는지, 아니면 일반 자바스크립트 함수 문맥에서도 같은 정도로 나타나는지이다.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{supertabular}{llrrr}
+  \toprule
+  \textbf{모델} & \textbf{조건} & $LD_{\texttt{state}}$ & \textbf{$d$} & $r_{>0}$ \\
+  \midrule
+  Llama 3.2 1B & \texttt{useEffect} & 1.076 & 4.37 & 1.00 \\
+  & \texttt{useLayoutEffect} & 0.993 & 3.98 & 1.00 \\
+  & \texttt{alias} & 0.944 & 4.50 & 1.00 \\
+  & \texttt{alias\_ctrl} & \textbf{1.251} & \textbf{5.47} & 1.00 \\
+  & \texttt{subscribe} & \textbf{1.318} & \textbf{5.17} & 1.00 \\
+  \midrule
+  Gemma 3 1B & \texttt{useEffect} & 0.354 & 1.14 & 0.84 \\
+  & \texttt{useLayoutEffect} & 0.274 & 0.99 & 0.80 \\
+  & \texttt{alias} & 0.402 & 1.50 & 0.91 \\
+  & \texttt{alias\_ctrl} & \textbf{0.641} & \textbf{1.90} & 0.98 \\
+  & \texttt{subscribe} & \textbf{0.750} & \textbf{2.00} & 0.98 \\
+  \bottomrule
+\end{supertabular}
+\caption{선호 관찰 실험 결과(변수 쌍 단위 평균, $n=45$). 양수는 역할 교체 재정렬 이후 상태 변수 선호를 뜻함. 굵게 표시한 행은 짝을 이루는 비리액트 대조군으로, 두 모델 모두에서 대응하는 리액트 훅 조건보다 큰 값을 보임.}
+\label{tab:results-pref}
+\end{table*}
+
+\paragraph{상태 선호의 관찰.}
+두 모델 모두 다섯 조건 전부에서 $LD_{\texttt{state}} > 0$을 보였다(표~\ref{tab:results-pref}).
+Llama 3.2 1B는 \texttt{alias}의 0.944부터 \texttt{subscribe}의 1.318까지, Gemma 3 1B는 \texttt{useLayoutEffect}의 0.274부터 \texttt{subscribe}의 0.750까지 분포한다.
+$r_{>0}$은 Llama 3.2 1B에서 전부 1.00, Gemma 3 1B에서 0.80\~{}0.98로, 모델이 상태 변수를 선호하는 경향은 조건에 관계없이 강하고 일관되게 나타난다.
+
+\paragraph{상태 선호의 일반성.}
+그러나 리액트 훅 실험군과 자바스크립트 대조군을 비교해 보면, 리액트 의미론 가설이 예측하는 방향과 반대의 결과가 나타났음을 알 수 있다.
+같은 변수 쌍 안에서 \texttt{subscribe} 조건은 \texttt{useEffect} 조건보다 더 큰 $LD_{\texttt{state}}$를 보였기 때문이다.
+그 차이는 Llama 3.2 1B에서 평균 0.242($d=1.17$, $p=6.25\times10^{-10}$), Gemma 3 1B에서 평균 0.397($d=2.59$, $p=2.69\times10^{-21}$)이었다.
+
+호출부의 표면 형태를 더 가깝게 맞춘 \texttt{alias\_ctrl}과 \texttt{alias}의 대비에서도 같은 패턴이 나타났다.
+\texttt{alias\_ctrl}은 \texttt{alias}보다 Llama 3.2 1B에서 평균 0.307($d=2.22$, $p=8.59\times10^{-19}$), Gemma 3 1B에서 평균 0.239($d=2.30$, $p=2.48\times10^{-19}$) 큰 $LD_{\texttt{state}}$를 보였다.
+상태 변수 선호가 리액트 특수한 것이라면 리액트 실험군에서 대응하는 자바스크립트 대조군보다 더 큰 $LD_{\texttt{state}}$를 보여야 했으나, 실제로는 대조군의 $LD_{\texttt{state}}$가 더 컸으므로, 모델의 상태 선호를 리액트 의미론의 영향으로 설명하기는 어렵다.
+
+다른 리액트 훅인 \texttt{useLayoutEffect}에서도 상태 변수 선호는 나타났지만, \texttt{useEffect}보다 더 강하지는 않았다.
+같은 변수 쌍 안에서 \texttt{useLayoutEffect}의 평균 $LD_{\texttt{state}}$는 \texttt{useEffect}보다 Llama 3.2 1B에서 0.082, Gemma 3 1B에서 0.080 낮았다.
+이 결과 역시 리액트 의미론 가설로 모델의 선호를 설명하기 어려움을 시사한다.
+
+이상의 결과를 통해 모델의 상태 변수 선호가 안정적으로 관찰된다는 점, 그리고 이 선호가 리액트에 특화되어 있지 않다는 점을 알 수 있다.
+
+\subsection{변수 사용 소거}
+\label{sec:results-bodyuse}
+
+변수 사용 소거 실험은 선언 형태와 문맥을 고정한 채, 함수 본문에서 어떤 변수가 사용되는지만 조작한다.
+이 실험에서 조작하는 변수 사용 조건은 아래와 같다.
+
+\begin{description}
+\item[\texttt{both}] $x$, $y$ 모두 함수 본문에서 사용함. $x$와 $y$의 출현 순서는 `사용 순서' 조작 축에 따름.
+\item[\texttt{target\_only}] $x$만 함수 본문에서 사용함.
+\item[\texttt{control\_only}] $y$만 함수 본문에서 사용함.
+\item[\texttt{neither}] 두 변수 모두 함수 본문에서 사용하지 않음.
+\end{description}
+
+문맥은 \texttt{useEffect}와 \texttt{subscribe} 두 가지로 한정해 총 1,800개의 코드 조각을 사용한다.
+이 실험의 목적은 상태 변수의 선언 자체에서 오는 선언 형태 단서와, 함수 본문에서 사용된 변수를 다시 불러오는 변수 사용 단서를 분리하는 데에 있다.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{supertabular}{llrrrr}
+  \toprule
+  \textbf{모델} & \textbf{문맥} & \textbf{\texttt{both}} & \textbf{\texttt{t/o}} & \textbf{\texttt{c/o}} & \textbf{\texttt{neither}} \\
+  \midrule
+  Llama 3.2 1B & \texttt{useEffect} & 0.824 & 3.010 & $-1.598$ & 0.876 \\
+  & \texttt{subscribe} & 1.130 & 1.409 & 0.353 & 0.628 \\
+  \midrule
+  Gemma 3 1B & \texttt{useEffect} & 0.593 & 6.160 & $-3.282$ & 1.245 \\
+  & \texttt{subscribe} & 0.746 & 3.343 & $-0.967$ & 1.197 \\
+  \bottomrule
+\end{supertabular}
+\caption{변수 사용 소거 실험의 평균 $LD_{\texttt{state}}$(변수 쌍 단위, $n=45$). \texttt{t/o}와 \texttt{c/o}는 각각 \texttt{target\_only}와 \texttt{control\_only} 조건을 뜻함. 네 가지 환경 모두에서 \texttt{target\_only} $>$ \texttt{both} $>$ \texttt{control\_only} 순서가 성립함.}
+\label{tab:results-bodyuse}
+\end{table*}
+
+\paragraph{\texttt{control\_only}.}
+가장 중요한 조건은 \texttt{control\_only}이다.
+이 조건에서는 상태 변수는 본문에서 쓰이지 않고 상수만 쓰이므로, 선언 형태 단서와 변수 사용 단서가 충돌한다.
+\texttt{control\_only}에서 $LD_{\texttt{state}}>0$이면 선언 형태 단서가 변수 사용 단서보다 우세하다는 뜻이고, 반대로 음수이면 변수 사용 단서가 더 우세하다는 뜻이다.
+
+실제 \texttt{control\_only}의 결과는 문맥에 따라 갈리는 모습이 관찰되었다(표~\ref{tab:results-bodyuse}).
+\texttt{useEffect} 문맥에서는 두 모델 모두 강한 음수를 보였다(Llama: $-1.598$, $d=-3.41$; Gemma: $-3.282$, $d=-5.45$).
+이는 이 문맥에서 변수 사용 단서가 선언 형태 단서보다 더 강하게 작용했음을 의미한다.
+반면 \texttt{subscribe} 문맥에서는 모델에 따라 결과가 달랐다.
+Llama 3.2 1B는 $+0.353$($d=0.82, r_{>0}=0.82$, $p=8.2\times10^{-7}$)으로 선언 형태 단서가 남아 있었지만, Gemma 3 1B는 $-0.967$($d=-1.78$)로 변수 사용 단서가 여전히 우세했다.
+
+\paragraph{$LD_\texttt{state}$의 순서.}
+다음으로 눈여겨볼 것은 네 가지 환경에서의 $LD_\texttt{state}$ 값의 순서이다.
+이 순서를 확인하기 위해 \texttt{both} 조건을 기준점으로 삼았다.
+\texttt{both}에서는 두 후보 변수가 모두 함수 본문에 등장하므로, 변수 사용 단서가 어느 한쪽 후보만을 지지하지 않는다.
+반면 \texttt{target\_only}에서는 상태 변수만 본문에 등장하므로, 변수 사용 단서가 상태 변수 쪽으로 기울고, \texttt{control\_only}에서는 상수만 본문에 등장하므로, 변수 사용 단서가 상수 쪽으로 기운다.
+따라서 선언 형태 단서와 변수 사용 단서가 로짓 수준에서 더해지는 방식으로 작용한다면, 같은 변수 쌍 안에서 \texttt{target\_only}는 \texttt{both}보다 큰 $LD_\texttt{state}$를 보이고, \texttt{control\_only}는 \texttt{both}보다 작은 $LD_\texttt{state}$을 보여야 한다.
+
+표~\ref{tab:results-bodyuse}으로부터 실제로 이 예측이 성립했다는 사실을 알 수 있다.
+Llama 3.2 1B의 \texttt{subscribe} 문맥에서는 \texttt{target\_only}가 \texttt{both}보다 평균 0.279 컸고, \texttt{control\_only}는 \texttt{both}보다 평균 0.777 작았다.
+\texttt{useEffect} 문맥에서도 같은 패턴이 나타나, \texttt{target\_only}는 \texttt{both}보다 평균 2.187 컸고, \texttt{control\_only}는 평균 2.422 작았다.
+Gemma 3 1B에서도 \texttt{subscribe} 문맥에서는 각각 +2.597과 -1.713, \texttt{useEffect} 문맥에서는 각각 +5.568과 -3.875의 차이를 보였다.
+이 차이는 모두 기대한 방향에서 통계적으로 유의했다($p<10^{-7}$).
+
+\paragraph{종합.}
+이상을 정리하면, \texttt{useEffect} 문맥에서는 두 모델 모두 변수 사용 단서가 선언 형태 단서보다 우세했다.
+\texttt{subscribe} 문맥에서는 \texttt{control\_only}의 부호가 모델마다 갈리므로 선언 형태 단서가 남는 정도를 일률적으로 말하기 어렵다.
+다만 두 모델 모두 \texttt{control\_only} 조건에서는, \texttt{useEffect}보다 \texttt{subscribe} 문맥에서 더 큰 $LD_\texttt{state}$를 보였다.
+즉 리액트가 아닌 환경에서 선언 형태 단서가 더 많이 남으며, 이는 \S\ref{sec:results-pref}에서 관찰된 패턴과도 일치한다.
+따라서 변수 사용 단서와 선언 형태 단서 중 어느 하나가 항상 지배적이지 않고, 배열을 도입하는 문맥에 따라 상대적 우세가 달라진다고 결론 지을 수 있다.
+
+한편 \texttt{neither} 조건, 즉 두 후보 변수가 모두 본문에서 사용되지 않은 조건에서도 상태 변수 쪽으로 기우는 경향이 있었다($r_{>0}$ 0.93\~{}1.00).
+다만 이 조건은 보조적인 관찰로만 다루며, 이 연구의 핵심 주장은 \texttt{control\_only}의 부호와 \texttt{target\_only} $>$ \texttt{both} $>$ \texttt{control\_only} 순서에 둔다.
+
+\subsection{문맥 소거}
+\label{sec:results-context}
+
+문맥 소거 실험은 변수 선언부와 함수 본문을 고정한 채, 배열을 도입하는 문맥만 조작한다.
+아래 조건에 따라 조작하여, 총 1,440개의 코드 조각을 실험에 사용하였다.
+
+\begin{description}
+\item[\texttt{useEffect}]
+  리액트 훅 \texttt{useEffect}에 콜백 함수와 배열을 인자로 전달하는 형태.
+\item[\texttt{subscribe}]
+  일반 함수 \texttt{subscribe}에 콜백 함수와 배열을 인자로 전달하는 형태.
+\item[\texttt{plain\_array}]
+  콜백 함수를 외부 함수에 전달하지 않고, 두 후보 변수가 사용된 뒤 독립적인 배열 리터럴을 정의하는 형태.
+\item[\texttt{return\_array}]
+  콜백 함수를 외부 함수에 전달하지 않고, 두 후보 변수가 사용된 뒤 배열 리터럴을 반환하는 형태.
+\end{description}
+
+이 실험의 목적은 상태 변수 선호가 \texttt{useEffect}나 \texttt{subscribe}처럼 콜백 함수와 배열이 외부 함수의 인자로 등장하는 함수--배열 구조에 묶여 있는지, 아니면 함수 호출문과 배열의 단순한 연쇄에서도 나타나는지 확인하는 데에 있다.
+효과가 콜백 함수가 있는 \texttt{useEffect}와 \texttt{subscribe}에서만 유지되고 콜백이 없는 \texttt{plain\_array}와 \texttt{return\_array}에서 사라진다면, 상태 변수 선호는 함수--배열 구조에 묶인 것으로 읽을 수 있다.
+반대로 네 문맥 모두에서 유지된다면, 이 선호는 더 넓은 배열 완성 일반의 경향으로 읽을 수 있다.
+
+이 실험의 목적은 상태 변수 선호가 \texttt{useEffect}나 \texttt{subscribe}처럼 콜백 함수와 배열이 외부 함수의 인자로 등장하는 함수--배열 구조에 묶여 있는지, 아니면 독립적인 배열 완성 문맥에서도 나타나는지 확인하는 데에 있다.
+만약 상태 선호의 경향이 콜백 함수가 있는 \texttt{useEffect}와 \texttt{subscribe}에서만 관찰되고, 콜백 함수가 없는 \texttt{plain\_array}와 \texttt{return\_array}에서 사라진다면, 이 선호는 함수--배열 구조에 의존하는 현상으로 읽을 수 있다.
+반대로 네 문맥 모두에서 state-form 변수 선호가 양수로 유지된다면, 이 선호는 특정 함수--배열 구조에 국한되기보다 더 넓은 배열 완성 일반의 경향으로 해석할 수 있다.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{supertabular}{llrrr}
+  \toprule
+  \textbf{모델} & \textbf{문맥} & $LD_{\texttt{state}}$ & \textbf{$d$} & $r_{>0}$ \\
+  \midrule
+  Llama 3.2 1B & \texttt{useEffect} & 1.290 & 2.76 & 0.98 \\
+  & \texttt{subscribe} & 1.191 & 3.04 & 1.00 \\
+  & \texttt{plain\_array} & 1.428 & 3.20 & 1.00 \\
+  & \texttt{return\_array} & 2.966 & 6.78 & 1.00 \\
+  \midrule
+  Gemma 3 1B & \texttt{useEffect} & 2.355 & 5.99 & 1.00 \\
+  & \texttt{subscribe} & 2.229 & 5.54 & 1.00 \\
+  & \texttt{plain\_array} & 1.113 & 2.73 & 1.00 \\
+  & \texttt{return\_array} & 0.749 & 2.50 & 1.00 \\
+  \bottomrule
+\end{supertabular}
+\caption{문맥 소거 실험 결과(변수 쌍 단위 평균, $n=45$). 여덟 가지 환경 전부에서 $LD_{\texttt{state}} > 0$임.}
+\label{tab:results-context}
+\end{table*}
+
+$LD_{\texttt{state}}$은 여덟 가지의 환경 전부에서 강한 양수였다(표~\ref{tab:results-context}).
+Llama 3.2 1B는 \texttt{useEffect} 1.290, \texttt{subscribe} 1.191, \texttt{plain\_array} 1.428, \texttt{return\_array} 2.966을, Gemma 3 1B는 \texttt{useEffect} 2.355, \texttt{subscribe} 2.229, \texttt{plain\_array} 1.113, \texttt{return\_array} 0.749를 보였다.
+콜백 함수가 없는 \texttt{plain\_array}와 \texttt{return\_array}에서도 선호가 유지되므로, 이 현상은 의존성 배열이나 함수--배열 구조에만 국한되지 않고, 배열을 채울 때 나타나는 더 일반적인 경향에 가깝다고 보아야 한다.
+
+다만 문맥별 효과 크기의 순서는 두 모델에서 일관되지 않았다.
+같은 변수 쌍 안에서 \texttt{return\_array} 조건과 \texttt{useEffect} 조건을 비교하면, Llama 3.2 1B에서는 \texttt{return\_array}의 $LD_{\texttt{state}}$가 \texttt{useEffect}보다 평균 1.676 컸지만($p=7\times10^{-27}$), Gemma 3 1B에서는 오히려 평균 1.606 작았다($p=4\times10^{-30}$).
+\texttt{plain\_array} 조건에서도 비슷한 결과가 나타났다.
+Llama 3.2 1B에서는 \texttt{plain\_array}가 \texttt{useEffect}보다 평균 0.138 컸으나 이 차이는 유의하지 않았고($p=0.069$), Gemma 3 1B에서는 평균 1.242 작았다($p=9\times10^{-21}$).
+즉 Llama 3.2 1B는 \texttt{return\_array}에서 가장 큰 값을 보이는 반면, Gemma 3 1B는 같은 조건에서 가장 작은 값을 보인다.
+따라서 문맥에 따라 일관된 상태 선호의 크기 순서가 존재하는 것은 아니다.
+
+이 절의 결과를 \S\ref{sec:results-pref}와 함께 보면, 상태 변수 선호가 나타나기 위해 리액트 특수성이나 함수--배열 구조가 반드시 필요한 것은 아닌 것으로 보인다.
+리액트 훅이 아닌 함수 문맥에서도, 콜백 함수가 없는 문맥에서도 상태 변수 선호가 사라지지 않았다는 점은, 이 경향성이 특정 라이브러리나 특정 문법 구조에 갇힌 현상이라기보다 배열을 완성 과제에서 일어나는 일반적인 경향에 가깝다는 해석을 강화한다.
 
 \bibliography{custom}
 
