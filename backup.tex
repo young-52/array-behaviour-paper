@@ -1,0 +1,168 @@
+\section{실험 결과 전체}
+
+여기서는 본문 \S\ref{sec:results}에서 생략한 95\% 부트스트랩 신뢰구간과 회귀 분석 결과를 포함해, 세 실험 전체의 모델별·조건별 수치를 제시한다.
+
+\paragraph{선호 관찰.}
+표~\ref{tab:app-gen-full}은 표~\ref{tab:results-pref}의 전체 결과를, 표~\ref{tab:app-gen-regression}은 같은 실험의 회귀분석 결과를 보여준다.
+
+% source: data/reactivity_generalization/reactivity_generalization_summary.md, Stage A
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{supertabular}{llrrrr}
+    \toprule
+    \textbf{모델} & \textbf{조건} & $LD_{\texttt{state}}$ & $r_{>0}$ & \textbf{95\% CI} & \textbf{$d$} \\
+    \midrule
+    Llama 3.2 1B & \texttt{useEffect} & 1.076 & 1.000 & [1.005, 1.149] & 4.37 \\
+    & \texttt{useLayoutEffect} & 0.993 & 1.000 & [0.924, 1.068] & 3.98 \\
+    & \texttt{alias} & 0.944 & 1.000 & [0.883, 1.005] & 4.50 \\
+    & \texttt{alias\_ctrl} & 1.251 & 1.000 & [1.188, 1.319] & 5.47 \\
+    & \texttt{subscribe} & 1.318 & 1.000 & [1.245, 1.391] & 5.17 \\
+    \midrule
+    Gemma 3 1B & \texttt{useEffect} & 0.354 & 0.844 & [0.263, 0.443] & 1.14 \\
+    & \texttt{useLayoutEffect} & 0.274 & 0.800 & [0.195, 0.355] & 0.99 \\
+    & \texttt{alias} & 0.402 & 0.911 & [0.322, 0.478] & 1.50 \\
+    & \texttt{alias\_ctrl} & 0.641 & 0.978 & [0.541, 0.736] & 1.90 \\
+    & \texttt{subscribe} & 0.750 & 0.978 & [0.640, 0.857] & 2.00 \\
+    \bottomrule
+  \end{supertabular}
+  \caption{선호 관찰 실험의 전체 결과(변수 쌍 단위 평균, $n=45$). 표~\ref{tab:results-pref}에서 생략한 95\% bootstrap 신뢰구간을 포함함.}
+  \label{tab:app-gen-full}
+\end{table*}
+
+% source: data/reactivity_generalization/reactivity_generalization_summary.md, Stage B
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{supertabular}{llrrrr}
+    \toprule
+    \textbf{모델} & \textbf{항} & \textbf{추정값} & \textbf{표준오차} & \textbf{95\% CI} & \textbf{$p$} \\
+    \midrule
+    Llama 3.2 1B & \texttt{useEffect}(기준) & 1.076 & 0.037 & [1.004, 1.148] & $7.30\times10^{-188}$ \\
+    & $\times$ \texttt{useLayoutEffect} & $-0.082$ & 0.008 & [$-0.098$, $-0.067$] & $7.26\times10^{-25}$ \\
+    & $\times$ \texttt{alias} & $-0.132$ & 0.023 & [$-0.177$, $-0.087$] & $1.05\times10^{-8}$ \\
+    & $\times$ \texttt{alias\_ctrl} & 0.175 & 0.028 & [0.119, 0.231] & $6.93\times10^{-10}$ \\
+    & $\times$ \texttt{subscribe} & 0.242 & 0.031 & [0.182, 0.302] & $4.37\times10^{-15}$ \\
+    \midrule
+    Gemma 3 1B & \texttt{useEffect}(기준) & 0.354 & 0.046 & [0.263, 0.445] & $2.23\times10^{-14}$ \\
+    & $\times$ \texttt{useLayoutEffect} & $-0.080$ & 0.017 & [$-0.113$, $-0.046$] & $2.46\times10^{-6}$ \\
+    & $\times$ \texttt{alias} & 0.048 & 0.024 & [0.000, 0.095] & 0.048 \\
+    & $\times$ \texttt{alias\_ctrl} & 0.287 & 0.025 & [0.239, 0.336] & $2.28\times10^{-31}$ \\
+    & $\times$ \texttt{subscribe} & 0.397 & 0.023 & [0.352, 0.441] & $5.04\times10^{-67}$ \\
+    \bottomrule
+  \end{supertabular}
+  \caption{선호 관찰 실험의 회귀분석 결과(종속변수 $D=\textsf{logit}(x)-\textsf{logit}(y)$). \texttt{useEffect}를 기준 수준으로 하여, 각 상호작용 항은 역할 교체 보정을 거친 \texttt{useEffect}와의 대비를 뜻함.}
+  \label{tab:app-gen-regression}
+\end{table*}
+
+\paragraph{변수 사용 소거.}
+표~\ref{tab:app-ablationC-full}은 표~\ref{tab:results-bodyuse}의 전체 결과를, 표~\ref{tab:app-ablationC-ordering}은 같은 실험의 순서 검증 결과를 보여준다.
+
+% source: data/ablationC/reactivity_ablationC_summary.md, Stage A
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{supertabular}{lllrrrr}
+    \toprule
+    \textbf{모델} & \textbf{문맥} & \textbf{변수 사용} & $LD_{\texttt{state}}$ & $r_{>0}$ & \textbf{95\% CI} & \textbf{$d$} \\
+    \midrule
+    Llama 3.2 1B & \texttt{useEffect} & \texttt{both} & 0.824 & 1.000 & [0.735, 0.917] & 2.65 \\
+    & & \texttt{target\_only} & 3.010 & 1.000 & [2.863, 3.159] & 5.90 \\
+    & & \texttt{control\_only} & $-1.598$ & 0.000 & [$-1.735$, $-1.466$] & $-3.41$ \\
+    & & \texttt{neither} & 0.876 & 0.956 & [0.726, 1.022] & 1.72 \\
+    \cmidrule(l){2-7}
+    & \texttt{subscribe} & \texttt{both} & 1.130 & 1.000 & [1.045, 1.215] & 3.85 \\
+    & & \texttt{target\_only} & 1.409 & 1.000 & [1.292, 1.528] & 3.43 \\
+    & & \texttt{control\_only} & 0.353 & 0.822 & [0.227, 0.477] & 0.82 \\
+    & & \texttt{neither} & 0.628 & 0.933 & [0.520, 0.739] & 1.65 \\
+    \midrule
+    Gemma 3 1B & \texttt{useEffect} & \texttt{both} & 0.593 & 1.000 & [0.519, 0.664] & 2.36 \\
+    & & \texttt{target\_only} & 6.160 & 1.000 & [5.918, 6.411] & 7.20 \\
+    & & \texttt{control\_only} & $-3.282$ & 0.000 & [$-3.457$, $-3.109$] & $-5.45$ \\
+    & & \texttt{neither} & 1.245 & 1.000 & [1.152, 1.342] & 3.79 \\
+    \cmidrule(l){2-7}
+    & \texttt{subscribe} & \texttt{both} & 0.746 & 1.000 & [0.654, 0.838] & 2.35 \\
+    & & \texttt{target\_only} & 3.343 & 1.000 & [3.174, 3.525] & 5.48 \\
+    & & \texttt{control\_only} & $-0.967$ & 0.044 & [$-1.123$, $-0.810$] & $-1.78$ \\
+    & & \texttt{neither} & 1.197 & 1.000 & [1.089, 1.304] & 3.24 \\
+    \bottomrule
+  \end{supertabular}
+  \caption{변수 사용 소거 실험의 네 가지 변수 사용 조건 전체 결과(변수 쌍 단위 평균, $n=45$). \texttt{neither} 행은 보조적 관찰로만 제시되며 본 연구의 핵심 주장은 이에 의존하지 않음.}
+  \label{tab:app-ablationC-full}
+\end{table*}
+
+% source: data/ablationC/reactivity_ablationC_summary.md, ordering-check table
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{supertabular}{lllrrr}
+    \toprule
+    \textbf{모델} & \textbf{문맥} & \textbf{변수 사용(\texttt{both} 대비)} & \textbf{평균차} & \textbf{$t$} & \textbf{양측 $p$} \\
+    \midrule
+    Llama 3.2 1B & \texttt{useEffect} & \texttt{target\_only} & 2.187 & 35.96 & $2.90\times10^{-34}$ \\
+    & & \texttt{control\_only} & $-2.422$ & $-41.16$ & $9.10\times10^{-37}$ \\
+    & & \texttt{neither} & 0.052 & 1.04 & 0.306 (ns) \\
+    \cmidrule(l){2-6}
+    & \texttt{subscribe} & \texttt{target\_only} & 0.279 & 6.78 & $2.44\times10^{-8}$ \\
+    & & \texttt{control\_only} & $-0.777$ & $-19.36$ & $3.76\times10^{-23}$ \\
+    & & \texttt{neither} & $-0.501$ & $-14.26$ & $4.18\times10^{-18}$ \\
+    \midrule
+    Gemma 3 1B & \texttt{useEffect} & \texttt{target\_only} & 5.568 & 46.88 & $3.35\times10^{-39}$ \\
+    & & \texttt{control\_only} & $-3.875$ & $-49.49$ & $3.23\times10^{-40}$ \\
+    & & \texttt{neither} & 0.653 & 18.29 & $3.48\times10^{-22}$ \\
+    \cmidrule(l){2-6}
+    & \texttt{subscribe} & \texttt{target\_only} & 2.597 & 30.05 & $5.79\times10^{-31}$ \\
+    & & \texttt{control\_only} & $-1.713$ & $-31.10$ & $1.37\times10^{-31}$ \\
+    & & \texttt{neither} & 0.451 & 11.60 & $5.67\times10^{-15}$ \\
+    \bottomrule
+  \end{supertabular}
+  \caption{변수 사용 소거 실험의 순서 검증 결과(\texttt{both} 조건과 짝지어 비교, $n=45$). \texttt{neither} 행은 참고용으로만 제시함. Llama 3.2 1B의 \texttt{useEffect} 문맥에서 \texttt{neither}는 유의하지 않음($p=0.306$).}
+  \label{tab:app-ablationC-ordering}
+\end{table*}
+
+\paragraph{문맥 소거.}
+표~\ref{tab:app-ablationB-full}은 표~\ref{tab:results-context}의 전체 결과를, 표~\ref{tab:app-ablationB-paired}은 같은 실험의 \texttt{useEffect} 기준 대응 비교 결과를 보여준다.
+
+% source: data/ablationB/reactivity_ablationB_summary.md, Stage A
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{supertabular}{llrrrr}
+    \toprule
+    \textbf{모델} & \textbf{문맥} & $LD_{\texttt{state}}$ & $r_{>0}$ & \textbf{95\% CI} & \textbf{$d$} \\
+    \midrule
+    Llama 3.2 1B & \texttt{useEffect} & 1.290 & 0.978 & [1.152, 1.420] & 2.76 \\
+    & \texttt{subscribe} & 1.191 & 1.000 & [1.073, 1.302] & 3.04 \\
+    & \texttt{plain\_array} & 1.428 & 1.000 & [1.297, 1.562] & 3.20 \\
+    & \texttt{return\_array} & 2.966 & 1.000 & [2.840, 3.091] & 6.78 \\
+    \midrule
+    Gemma 3 1B & \texttt{useEffect} & 2.355 & 1.000 & [2.243, 2.472] & 5.99 \\
+    & \texttt{subscribe} & 2.229 & 1.000 & [2.115, 2.344] & 5.54 \\
+    & \texttt{plain\_array} & 1.113 & 1.000 & [0.996, 1.232] & 2.73 \\
+    & \texttt{return\_array} & 0.749 & 1.000 & [0.663, 0.836] & 2.50 \\
+    \bottomrule
+  \end{supertabular}
+  \caption{문맥 소거 실험의 전체 결과(변수 쌍 단위 평균, $n=45$). 표~\ref{tab:results-context}에서 생략한 95\% bootstrap 신뢰구간을 포함함.}
+  \label{tab:app-ablationB-full}
+\end{table*}
+
+% source: data/ablationB/reactivity_ablationB_summary.md, paired-contrast table
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{supertabular}{llrrrr}
+    \toprule
+    \textbf{모델} & \textbf{문맥(\texttt{useEffect} 대비)} & \textbf{평균차} & \textbf{$t$} & \textbf{양측 $p$} & \textbf{$d$} \\
+    \midrule
+    Llama 3.2 1B & \texttt{subscribe} & $-0.099$ & $-2.78$ & 0.0079 & $-0.41$ \\
+    & \texttt{plain\_array} & 0.138 & 1.86 & 0.069 (ns) & 0.28 \\
+    & \texttt{return\_array} & 1.676 & 23.97 & $6.89\times10^{-27}$ & 3.57 \\
+    \midrule
+    Gemma 3 1B & \texttt{subscribe} & $-0.125$ & $-3.41$ & 0.0014 & $-0.51$ \\
+    & \texttt{plain\_array} & $-1.242$ & $-16.81$ & $9.11\times10^{-21}$ & $-2.51$ \\
+    & \texttt{return\_array} & $-1.606$ & $-28.66$ & $4.21\times10^{-30}$ & $-4.27$ \\
+    \bottomrule
+  \end{supertabular}
+  \caption{문맥 소거 실험의 \texttt{useEffect} 기준 대응 비교 결과($n=45$). \texttt{return\_array}와 \texttt{plain\_array}에서 두 모델의 부호가 서로 다르게 나타나는데, 이는 각 모델 내 효과의 존재만을 뜻하며 모델 간 공통된 크기 순서를 뜻하지 않음.}
+  \label{tab:app-ablationB-paired}
+\end{table*}
